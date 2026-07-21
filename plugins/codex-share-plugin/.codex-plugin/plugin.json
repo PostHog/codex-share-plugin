@@ -1,0 +1,21 @@
+{
+  "name": "codex-share-plugin",
+  "version": "0.1.0+codex.20260721203111",
+  "description": "Preview and share Codex sessions to GitHub as readable Markdown.",
+  "author": {
+    "name": "PostHog"
+  },
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Codex Share Plugin",
+    "shortDescription": "Share Codex sessions as Markdown",
+    "longDescription": "Preview a readable Markdown transcript, then publish it to a configured GitHub repository.",
+    "developerName": "PostHog",
+    "category": "Productivity",
+    "capabilities": [
+      "Read",
+      "Write"
+    ],
+    "defaultPrompt": "Share this Codex session as readable Markdown."
+  }
+}

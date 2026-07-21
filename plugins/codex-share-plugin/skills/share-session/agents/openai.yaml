@@ -1,0 +1,4 @@
+interface:
+  display_name: "Share session"
+  short_description: "Preview and publish a Codex session to GitHub"
+  default_prompt: "Share this Codex session as readable Markdown."
