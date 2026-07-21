@@ -1,10 +1,12 @@
 import importlib.util
 import json
+import subprocess
 import tempfile
 import unittest
 from pathlib import Path
 
 SCRIPT = Path(__file__).parents[1] / "plugins/codex-share-plugin/scripts/share_session.py"
+INSTALLER = Path(__file__).parents[1] / "install.sh"
 SPEC = importlib.util.spec_from_file_location("share_session", SCRIPT)
 assert SPEC and SPEC.loader
 share_session = importlib.util.module_from_spec(SPEC)
@@ -12,6 +14,14 @@ SPEC.loader.exec_module(share_session)
 
 
 class ShareSessionTest(unittest.TestCase):
+    def test_installer_help_documents_default_repository(self) -> None:
+        result = subprocess.run(
+            ["bash", str(INSTALLER), "--help"], capture_output=True, text=True, check=True
+        )
+
+        self.assertIn("PostHog/agent-sessions", result.stdout)
+        self.assertIn("--codex-share-repo owner/repo", result.stdout)
+
     def test_defaults_to_codex_namespace(self) -> None:
         original_argv = share_session.sys.argv
         share_session.sys.argv = ["share_session.py"]

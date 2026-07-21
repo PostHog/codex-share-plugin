@@ -1,6 +1,6 @@
 {
   "name": "codex-share-plugin",
-  "version": "0.1.0+codex.20260721203111",
+  "version": "0.1.0+codex.20260721204906",
   "description": "Preview and share Codex sessions to GitHub as readable Markdown.",
   "author": {
     "name": "PostHog"

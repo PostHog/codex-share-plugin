@@ -17,7 +17,24 @@ A Codex plugin that previews and publishes coding sessions to GitHub as readable
 - An authenticated [GitHub CLI](https://cli.github.com/)
 - A GitHub repository for agent session exports
 
-## Install locally
+## Install
+
+For PostHog, run:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/PostHog/codex-share-plugin/main/install.sh | bash
+```
+
+This installs the plugin and configures the private `PostHog/agent-sessions` repository. Restart Codex and start a new thread after installation.
+
+To publish somewhere else:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/PostHog/codex-share-plugin/main/install.sh | \
+  bash -s -- --codex-share-repo owner/repository
+```
+
+### Install locally
 
 ```bash
 codex plugin marketplace add /absolute/path/to/codex-share-plugin
