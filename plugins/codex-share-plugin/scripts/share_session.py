@@ -17,6 +17,10 @@ from urllib.parse import quote
 
 REPO_PATTERN = re.compile(r"^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$")
 SHARE_MARKERS = ("$share-session", "share_session.py", "share this codex session")
+ENVIRONMENT_CONTEXT_PATTERN = re.compile(
+    r"^\s*<environment_context>.*</environment_context>\s*$", re.DOTALL
+)
+TERMINAL_PROMPT_PATTERN = re.compile(r"^(?:❯|\$|%)\s")
 
 
 def codex_home() -> Path:
@@ -71,7 +75,19 @@ def content_text(content: object) -> str:
 
 def should_skip_message(text: str) -> bool:
     lowered = text.lower()
-    return any(marker in lowered for marker in SHARE_MARKERS)
+    return ENVIRONMENT_CONTEXT_PATTERN.fullmatch(text) is not None or any(
+        marker in lowered for marker in SHARE_MARKERS
+    )
+
+
+def format_message(text: str, role: str) -> str:
+    """Preserve terminal transcripts without changing ordinary Markdown prompts."""
+    first_line = text.lstrip().splitlines()[0] if text.strip() else ""
+    if role != "user" or "\n" not in text or not TERMINAL_PROMPT_PATTERN.match(first_line):
+        return text
+
+    fence = "````" if "```" in text else "```"
+    return f"{fence}text\n{text}\n{fence}"
 
 
 def format_tool_call(payload: dict[str, Any]) -> str:
@@ -115,7 +131,7 @@ def convert_session(path: Path, description: str | None = None) -> str:
             if not text or should_skip_message(text):
                 continue
             heading = "User" if role == "user" else "Codex"
-            lines.extend([f"## {heading}", "", text, ""])
+            lines.extend([f"## {heading}", "", format_message(text, role), ""])
         elif payload_type in {"function_call", "custom_tool_call"}:
             rendered = format_tool_call(payload)
             if not should_skip_message(rendered):

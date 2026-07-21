@@ -47,6 +47,19 @@ class ShareSessionTest(unittest.TestCase):
                 "payload": {
                     "type": "message",
                     "role": "user",
+                    "content": [
+                        {
+                            "type": "input_text",
+                            "text": "<environment_context>\n  <cwd>/secret/worktree</cwd>\n</environment_context>",
+                        }
+                    ],
+                },
+            },
+            {
+                "type": "response_item",
+                "payload": {
+                    "type": "message",
+                    "role": "user",
                     "content": [{"type": "input_text", "text": "Fix the bug"}],
                 },
             },
@@ -74,6 +87,35 @@ class ShareSessionTest(unittest.TestCase):
         self.assertIn("## Codex\n\nI found it.", markdown)
         self.assertIn("<summary><code>shell</code></summary>", markdown)
         self.assertNotIn("secret instructions", markdown)
+        self.assertNotIn("environment_context", markdown)
+        self.assertNotIn("/secret/worktree", markdown)
+
+    def test_formats_multiline_terminal_input_as_a_text_block(self) -> None:
+        entries = [
+            {
+                "type": "response_item",
+                "payload": {
+                    "type": "message",
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "input_text",
+                            "text": "❯ gh auth status\ngithub.com\n  ✓ Logged in",
+                        }
+                    ],
+                },
+            }
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            session = Path(directory) / "session.jsonl"
+            session.write_text("\n".join(json.dumps(entry) for entry in entries), encoding="utf-8")
+
+            markdown = share_session.convert_session(session)
+
+        self.assertIn(
+            "## User\n\n```text\n❯ gh auth status\ngithub.com\n  ✓ Logged in\n```",
+            markdown,
+        )
 
     def test_prefers_session_for_current_working_directory(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
